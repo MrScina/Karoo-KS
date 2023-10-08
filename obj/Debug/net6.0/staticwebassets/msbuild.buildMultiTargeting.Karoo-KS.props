@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\Karoo-KS.props" />
+</Project>
