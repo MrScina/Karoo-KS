@@ -14,6 +14,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<EmployeeContext>(Options =>
 {
     Options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+
 });
 var app = builder.Build();
 //app.UseCors((g) => g.AllowAnyOrigin());
@@ -23,7 +24,12 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.UseDeveloperExceptionPage();
 }
+//app.UseSwaggerUI(c =>
+//{
+//    c.SwaggerEndpoint("./v1/swagger.json", "Karoo-KS V1"); //originally "./swagger/v1/swagger.json"
+//});
 builder.Services.AddCors();
 
 app.UseCors(builder =>

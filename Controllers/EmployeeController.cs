@@ -3,6 +3,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
+using System.Collections.Generic;
+using System.Collections;
+using Karoo_KS.Service;
+using Karoo_KS.Repo;
+
 namespace Karoo_KS.Controllers
 {
     [Route("api/[controller]")]
@@ -14,18 +19,19 @@ namespace Karoo_KS.Controllers
         {
             _employeeContext = employeeContext;
         }
+       
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Employee>>> GetAllEmployee()
+        public async Task<ActionResult> GellEmployee()
         {
+            var EmployeeService = new EmployeeService(_employeeContext);
             try
             {
-                if(_employeeContext.Employees==null)
-                {
-                    return NotFound();
-                }
-                return await _employeeContext.Employees.ToListAsync();
+                var allemp = EmployeeService.GetAllEmployee().Result.Value;
 
-            }catch (Exception ex) 
+                return Ok(allemp);
+               
+            }
+            catch (Exception ex) 
             { 
                 throw;
             }
@@ -33,19 +39,12 @@ namespace Karoo_KS.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Employee>> GetEmployee(int id)
         {
+            var EmployeeService = new EmployeeService(_employeeContext);
             try
             {
-                if (_employeeContext.Employees == null)
-                {
-                    return NotFound();
-                }
-                var employee =await _employeeContext.Employees.FindAsync(id);
-                if (employee == null)
-                {
-                    return NotFound();
-                }
-                return  employee;
+                var employee = await EmployeeService.GetEmployee(id);
 
+                return  employee;
             }
             catch (Exception ex)
             {
@@ -55,16 +54,11 @@ namespace Karoo_KS.Controllers
         [HttpPost]
         public async Task<ActionResult<Employee>> AddEmployee(Employee employee)
         {
+            var EmployeeService = new EmployeeService(_employeeContext);
             try
             {
+                var person = await EmployeeService.AddEmployee(employee);
                 
-                //if (employee?.id == 0)
-                //{
-                //   return BadRequest();
-                //}
-
-                _employeeContext.Employees.Add(employee);
-                await _employeeContext.SaveChangesAsync();
                 return CreatedAtAction(nameof(AddEmployee), new { id = employee.id }, employee);
 
             }
@@ -76,21 +70,11 @@ namespace Karoo_KS.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult> EditEmployee(int id, Employee employee)
         {
+            var EmployeeService = new EmployeeService(_employeeContext);
             try
             {
 
-
-                if (id != employee?.id)
-                {
-                    return BadRequest();
-                }
-               
-                else
-                {
-                    _employeeContext.Entry(employee).State = EntityState.Modified;
-                    await _employeeContext.SaveChangesAsync();
-                }
-
+                var person = await EmployeeService.EditEmployee(id ,employee);
                 return Ok();//status of 200
             }
             catch (Exception ex)
@@ -101,21 +85,12 @@ namespace Karoo_KS.Controllers
         [HttpDelete("{id}")]
         public async Task <ActionResult> DeleteEmployee(int id)
         {
-            if(id == 0)
+            var EmployeeService = new EmployeeService(_employeeContext);
+            if (id == 0)
             {
                 return BadRequest();
             }
-            var employee = await _employeeContext.Employees.FindAsync(id);
-
-            if(employee == null && _employeeContext.Employees== null)
-            {
-                return NotFound();
-            }
-            else
-            {
-                _employeeContext.Remove(employee);
-                await _employeeContext.SaveChangesAsync();  
-            }
+            var employee = await EmployeeService.DeleteEmployee(id);
             return Ok();    
         }
     }
